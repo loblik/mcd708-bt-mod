@@ -141,7 +141,7 @@ void rc6_frame_transition() {
                 nextFrameState = RC6_FRAME_ADDR;
                 decoder.data_seen++;
             }
-            if (bitState == RC6_T_ONE_MIDDLE || bitState == RC6_T_ZERO_MIDDLE && decoder.data_seen == 0) {
+            if ((bitState == RC6_T_ONE_MIDDLE || bitState == RC6_T_ZERO_MIDDLE) && decoder.data_seen == 0) {
                 decoder.data = (decoder.data << 1) | (bitState == RC6_T_ONE_MIDDLE);
                 nextFrameState = RC6_FRAME_DATA;
                 decoder.data_seen++;
