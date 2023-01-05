@@ -1,36 +1,38 @@
 /*
-* usart.c
-*
-* Created : 15-08-2020 07:24:45 PM
-* Author  : Arnab Kumar Das
-* Website : www.ArnabKumarDas.com
-*/
+ * Firmware for MCD708-MCU board.
+ * Copyright (C) 2022 Pavel Löbl
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include <avr/io.h>      // Contains all the I/O Register Macros
+#include <avr/io.h>
 #include <avr/interrupt.h>
-//#include <util/delay.h>  // Generates a Blocking Delay
 #include <stdio.h>
 
-#define USART_BAUDRATE 57600 // Desired Baud Rate
-//#define USART_BAUDRATE 115200 // Desired Baud Rate
+#define USART_BAUDRATE 57600
 #define BAUD_PRESCALER (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
 
-#define ASYNCHRONOUS (0<<UMSEL00) // USART Mode Selection
+#define ASYNCHRONOUS (0<<UMSEL00)
 
 #define DISABLED    (0<<UPM00)
-#define EVEN_PARITY (2<<UPM00)
-#define ODD_PARITY  (3<<UPM00)
-#define PARITY_MODE  DISABLED // USART Parity Bit Selection
+#define PARITY_MODE  DISABLED
 
 #define ONE_BIT (0<<USBS0)
-#define TWO_BIT (1<<USBS0)
-#define STOP_BIT ONE_BIT      // USART Stop Bit Selection
+#define STOP_BIT ONE_BIT
 
-#define FIVE_BIT  (0<<UCSZ00)
-#define SIX_BIT   (1<<UCSZ00)
-#define SEVEN_BIT (2<<UCSZ00)
 #define EIGHT_BIT (3<<UCSZ00)
-#define DATA_BIT   EIGHT_BIT  // USART Data Bit Selection
+#define DATA_BIT   EIGHT_BIT
 
 #define UART_RX_BUFF_SIZE   128
 #define UART_TX_BUFF_SIZE   1024
@@ -38,7 +40,6 @@
 static int uart_putchar(char c, FILE *stream);
 static FILE mystdout = FDEV_SETUP_STREAM(uart_putchar, NULL,
                                          _FDEV_SETUP_WRITE);
-
 
 struct uart_tx {
     char data[UART_TX_BUFF_SIZE];
@@ -199,21 +200,21 @@ void USART_Init()
     uartTx.head = 0;
     uartTx.len = 0;
 
-	// Set Baud Rate
-	UBRR0H = BAUD_PRESCALER >> 8;
-	UBRR0L = BAUD_PRESCALER;
+    // Set Baud Rate
+    UBRR0H = BAUD_PRESCALER >> 8;
+    UBRR0L = BAUD_PRESCALER;
 
-	// Set Frame Format
-	UCSR0C = ASYNCHRONOUS | PARITY_MODE | STOP_BIT | DATA_BIT;
+    // Set Frame Format
+    UCSR0C = ASYNCHRONOUS | PARITY_MODE | STOP_BIT | DATA_BIT;
 
-	// Enable Receiver and Transmitter and enable TX (data register ready) interrupt
-	UCSR0B = _BV(RXEN0) | _BV(TXEN0);
+    // Enable Receiver and Transmitter and enable TX (data register ready) interrupt
+    UCSR0B = _BV(RXEN0) | _BV(TXEN0);
 }
 
 void USART_TransmitPolling(uint8_t DataByte)
 {
-	while (( UCSR0A & (1<<UDRE0)) == 0) {}; // Do nothing until UDR is ready
-	UDR0 = DataByte;
+    while (( UCSR0A & (1<<UDRE0)) == 0) {}; // Do nothing until UDR is ready
+    UDR0 = DataByte;
 }
 
 int uart_putchar(char c, FILE *stream) {
@@ -295,7 +296,7 @@ ISR (TIMER1_OVF_vect)
 {
     TCNT1 = 65536 - 8;
 
- //   ticks++;
+    //ticks++;
 
     PORTD ^= _BV(PD2);
 }
@@ -303,7 +304,7 @@ ISR (TIMER1_OVF_vect)
 
 int main()
 {
-	USART_Init();
+    USART_Init();
 
     stdout = &mystdout;
 
@@ -323,9 +324,9 @@ int main()
 
     TCNT1 = 65536 - 8;
 
-	TCCR1A = 0x00;
-	TCCR1B = _BV(CS11) | _BV(CS10);  // Timer mode with 1024 prescler
-	TIMSK1 = _BV(TOIE1);   // Enable timer1 overflow interrupt(TOIE1)
+    TCCR1A = 0x00;
+    TCCR1B = _BV(CS11) | _BV(CS10);  // Timer mode with 1024 prescler
+    TIMSK1 = _BV(TOIE1);   // Enable timer1 overflow interrupt(TOIE1)
 
     sei();
 
@@ -393,15 +394,14 @@ int main()
 
     printf("ret: %x\r\n", ret);
 
-	while (1)
-	{
+    while (1) {
         if (newDir) {
             printf("dir: %d\r\n", newDir);
             newDir = 0;
         }
 
     //if (!(ticks % 31250))
-     //   printf("ticks: %lu\r\n", ticks);
+    //   printf("ticks: %lu\r\n", ticks);
 
     //    if (lastDir != 0) {
     //        printf("dir %d\r\n", lastDir);
@@ -409,23 +409,23 @@ int main()
     //        printf("count %d\r\n", count);
     //    }
 
-        //if (count >= 1)
-        //{
-        //    printf("dir: %d\r\n", lastDir);
-        //    count = 0;
-        //}
-//        if (count++ == 0)
-        //    printf("nevim %u\r\n", count);
+    //if (count >= 1)
+    //{
+    //    printf("dir: %d\r\n", lastDir);
+    //    count = 0;
+    //}
+    //if (count++ == 0)
+    //    printf("nevim %u\r\n", count);
 
-        //if (PIND & _BV(PD7)) {
-		//    USART_TransmitPolling('1');
-        //} else {
-		//    USART_TransmitPolling('0');
-        //}
-		//USART_TransmitPolling(' ');
-		//_delay_ms(10);
-        //printf("nevim\r\n");
+    //if (PIND & _BV(PD7)) {
+    //    USART_TransmitPolling('1');
+    //} else {
+    //    USART_TransmitPolling('0');
+    //}
+    //USART_TransmitPolling(' ');
+    //_delay_ms(10);
+    //printf("nevim\r\n");
     }
 
-	return 0;
+    return 0;
 }
